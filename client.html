@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js'></script>
+    <script>
+      $(document).ready(function(){
+      function debug(str){ $("#debug").append("<p>"+str+"</p>"); };
+      client_id = Math.ceil( Math.random()*100 );
+      $("#client_id").text(client_id);
+
+
+      $("#start_btn").click(function(){
+        id = $("#id").val();
+        url = "ws://localhost:3000?id=" + id;
+
+      debug(url);
+      ws = new WebSocket(url);
+      ws.binaryType = "arraybuffer";
+      ws.onmessage = function(evt) {
+      $("#msg").append("<p>"+evt.data+"</p>");
+      };
+      ws.onclose = function() { debug("socket closed"); };
+      ws.onopen = function() {
+      debug("connected...");
+      ws.send(JSON.stringify({id: id, msg: "hello server"}));
+      };
+
+      });
+      $("#send_btn").click(function(){
+      str = JSON.stringify({client_id: client_id, msg:"hi to id:" + id + " from clinet_id:" + client_id});
+      ws.send(str);
+      });
+      });
+    </script>
+  </head>
+  <body>
+    ClientID:<span id="client_id"></span><br />
+    ID:<input id="id" type="text" size="5" value="1" />
+    <input id="start_btn" type="button" value="START" /><br />
+
+    <input id="send_btn" type="button" value="SEND" />
+
+    <div id="debug"></div>
+    <div id="msg"></div>
+  </body>
+</html>
